@@ -13,23 +13,27 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-                call,
-                result ->
-            if (call.method == "edit_image") {
-                val imagePath = call.argument<String>("imagePath")
-                if (imagePath == null) {
-                    result.error(
-                            "INVALID_ARGUMENT",
-                            "Missing or invalid 'imagePath' parameter",
-                            null
-                    )
-                    return@setMethodCallHandler
+            call,
+            result ->
+                when (call.method) {
+                    "edit_image" -> {
+                        val imagePath = call.argument<String>("imagePath")
+
+                        if (imagePath == null) {
+                            result.error(
+                                "INVALID_ARGUMENT",
+                                "Missing or invalid 'imagePath' parameter",
+                                null
+                            )
+                            return@setMethodCallHandler
+                        }
+                        val res = ImageProcessor.edit(imagePath)
+                        result.success(res)
+                    }
+                    else -> {
+                    result.notImplemented()
+                    }
                 }
-                val res = ImageProcessor.u8(imagePath)
-                result.success(res)
-            } else {
-                result.notImplemented()
-            }
         }
     }
 }
