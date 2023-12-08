@@ -1,29 +1,3 @@
-// package com.example.image_processing
-
-// import android.graphics.Bitmap
-// import android.graphics.Matrix
-
-// class ImageFilters {
-//     companion object{
-//         fun mirror(originalBitmap: Bitmap): Bitmap {
-//             val matrix = Matrix().apply { preScale(-1f, 1f) }
-
-//             val mirroredBitmap =
-//                     Bitmap.createBitmap(
-//                             originalBitmap,
-//                             0,
-//                             0,
-//                             originalBitmap.width,
-//                             originalBitmap.height,
-//                             matrix,
-//                             true
-//                     )
-
-//             return mirroredBitmap
-//         }
-//     }
-// }
-
 package com.example.image_processing
 
 import android.graphics.Bitmap
@@ -48,7 +22,7 @@ class ImageFilters {
             return mirroredBitmap
         }
 
-        fun blur(originalBitmap: Bitmap, blurFactor: int): Bitmap {
+        fun blur(originalBitmap: Bitmap, blurFactor: Int): Bitmap {
             val blurredBitmap = originalBitmap.copy(originalBitmap.config, true)
 
             for(f in 0..blurFactor){
