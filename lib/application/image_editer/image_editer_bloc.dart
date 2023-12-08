@@ -40,12 +40,16 @@ class ImageEditerBloc extends Bloc<ImageEditerEvent, ImageEditerState> {
 
       emit(ImageEditerState.done(unit8List: result));
     } catch (_) {
-      print(_);
       emit(
-        ImageEditerState.failed(
-          errorMessage: "Oops... Something went wrong $_",
+        const ImageEditerState.failed(
+          errorMessage: "Oops... Something went wrong",
         ),
       );
     }
   }
+
+  // TODO: seperate bloc
+  bool isBlur = false;
+  bool isMirrorVertical = false;
+  bool isMirrorHorizontal = false;
 }
