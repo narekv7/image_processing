@@ -36,7 +36,12 @@ class ImageEditerBloc extends Bloc<ImageEditerEvent, ImageEditerState> {
     }
 
     try {
-      final result = await _imageProcessor.editImage(pickedImagePath);
+      final result = await _imageProcessor.editImage(
+        pickedImagePath,
+        isBlur: isBlur,
+        isMirrorHorizontal: isMirrorHorizontal,
+        isMirrorVertical: isMirrorVertical,
+      );
 
       emit(ImageEditerState.done(unit8List: result));
     } catch (_) {

@@ -9,7 +9,7 @@ import com.example.image_processing.ImageFilters
 
 class ImageProcessor {
     companion object {
-        fun edit(imagePath: String): ByteArray {
+        fun edit(imagePath: String, blur: Boolean, mh: Boolean, mv: Boolean): ByteArray {
             // Creating [Bitmap] from image file 
             var bitmap: Bitmap = BitmapFactory.decodeFile(
                     File(imagePath).absolutePath,
@@ -17,7 +17,16 @@ class ImageProcessor {
                 )
 
             // Applying filterss
-            bitmap = ImageFilters.blur(bitmap, 5)
+            if (blur) {
+                // TODO: take radius from UI
+                bitmap = ImageFilters.blur(bitmap, 20)
+            }
+            if (mh) {
+                bitmap = ImageFilters.mirror(bitmap, true)
+            }
+            if (mv) {
+                bitmap = ImageFilters.mirror(bitmap, false)
+            }
             
 
             // Convert Bitmap and return as BypeArray

@@ -18,6 +18,9 @@ class MainActivity : FlutterActivity() {
                 when (call.method) {
                     "edit_image" -> {
                         val imagePath = call.argument<String>("imagePath")
+                        val blur = call.argument<Boolean>("blur") ?: false
+                        val mh = call.argument<Boolean>("mh") ?: false
+                        val mv = call.argument<Boolean>("mv") ?: false
 
                         if (imagePath == null) {
                             result.error(
@@ -27,7 +30,8 @@ class MainActivity : FlutterActivity() {
                             )
                             return@setMethodCallHandler
                         }
-                        val res = ImageProcessor.edit(imagePath)
+                        
+                        val res = ImageProcessor.edit(imagePath, blur, mh, mv)
                         result.success(res)
                     }
                     else -> {

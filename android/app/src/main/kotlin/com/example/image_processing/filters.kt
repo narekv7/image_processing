@@ -2,11 +2,12 @@ package com.example.image_processing
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.graphics.Color
 
 class ImageFilters {
     companion object {
-        fun mirror(originalBitmap: Bitmap): Bitmap {
-            val matrix = Matrix().apply { preScale(-1f, 1f) }
+        fun mirror(originalBitmap: Bitmap, isHorizontal: Boolean): Bitmap {
+            val matrix = Matrix().apply { if(isHorizontal) preScale(-1f, 1f) else  preScale(1f, -1f)}
 
             val mirroredBitmap =
                 Bitmap.createBitmap(
@@ -22,45 +23,73 @@ class ImageFilters {
             return mirroredBitmap
         }
 
-        fun blur(originalBitmap: Bitmap, blurFactor: Int): Bitmap {
-            val blurredBitmap = originalBitmap.copy(originalBitmap.config, true)
+        fun blur(sourceBitmap: Bitmap, radius: Int): Bitmap {
+            val inputBitmap = sourceBitmap.copy(sourceBitmap.config, true)
+            val pixels = IntArray(inputBitmap.width * inputBitmap.height)
 
-            for(f in 0..blurFactor){
-                for (y in 1 until originalBitmap.height - 1) {
-                    for (x in 1 until originalBitmap.width - 1) {
-                        val pixel = getBlurredPixel(originalBitmap, x, y)
-                        blurredBitmap.setPixel(x, y, pixel)
+            inputBitmap.getPixels(pixels, 0, inputBitmap.width, 0, 0, inputBitmap.width, inputBitmap.height)
+
+            val blurredPixels = applyGaussianBlur(pixels, inputBitmap.width, inputBitmap.height, radius)
+
+            val outputBitmap = Bitmap.createBitmap(inputBitmap.width, inputBitmap.height, inputBitmap.config)
+            outputBitmap.setPixels(blurredPixels, 0, inputBitmap.width, 0, 0, inputBitmap.width, inputBitmap.height)
+
+            return outputBitmap
+        }
+
+        private fun applyGaussianBlur(pixels: IntArray, width: Int, height: Int, radius: Int): IntArray {
+            val weights = calculateGaussianWeights(radius)
+
+            val resultPixels = IntArray(pixels.size)
+
+            for (y in 0 until height) {
+                for (x in 0 until width) {
+                    var red = 0.0
+                    var green = 0.0
+                    var blue = 0.0
+                    var alpha = 0.0
+
+                    for (i in -radius..radius) {
+                        val offsetX = x + i
+                        if (offsetX in 0 until width) {
+                            val pixel = pixels[y * width + offsetX]
+                            val weight = weights[i + radius]
+
+                            alpha += Color.alpha(pixel) * weight
+                            red += Color.red(pixel) * weight
+                            green += Color.green(pixel) * weight
+                            blue += Color.blue(pixel) * weight
+                        }
                     }
+
+                    resultPixels[y * width + x] = Color.argb(
+                        alpha.toInt(),
+                        red.toInt(),
+                        green.toInt(),
+                        blue.toInt()
+                    )
                 }
             }
 
-            
-
-            return blurredBitmap
+            return resultPixels
         }
 
-        private fun getBlurredPixel(bitmap: Bitmap, x: Int, y: Int): Int {
-            var red = 0
-            var green = 0
-            var blue = 0
 
-            for (dy in -1..1) {
-                for (dx in -1..1) {
-                    val nx = x + dx
-                    val ny = y + dy
+        private fun calculateGaussianWeights(radius: Int): DoubleArray {
+            val weights = DoubleArray(2 * radius + 1)
+            val sigma = radius / 3.0
 
-                    val pixel = bitmap.getPixel(nx, ny)
-                    red += (pixel shr 16 and 0xFF)
-                    green += (pixel shr 8 and 0xFF)
-                    blue += (pixel and 0xFF)
-                }
+            var sum = 0.0
+            for (i in -radius..radius) {
+                weights[i + radius] = Math.exp(-(i * i).toDouble() / (2.0 * sigma * sigma))
+                sum += weights[i + radius]
             }
 
-            red /= 9
-            green /= 9
-            blue /= 9
+            for (i in 0 until weights.size) {
+                weights[i] /= sum
+            }
 
-            return (0xFF shl 24) or (red shl 16) or (green shl 8) or blue
+            return weights
         }
-    }
+    }   
 }
